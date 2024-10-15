@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt
 
-ENV PX4_VERSION 1.14
+ENV PX4_VERSION 1.15
 
 RUN git clone https://github.com/PX4/PX4-Autopilot.git PX4 --recursive -b release/${PX4_VERSION}
 RUN bash ./PX4/Tools/setup/ubuntu.sh
@@ -62,4 +62,5 @@ RUN echo ". /opt/ros/$ROS_DISTRO/setup.sh\n. $WORKSPACE_DIR/install/setup.sh" >/
 COPY docker/supervisord.conf /etc/supervisord.conf
 RUN mkdir -p /opt/supervisord
 COPY docker/*.sh /opt/supervisord/
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
