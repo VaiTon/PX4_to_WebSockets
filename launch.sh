@@ -1,14 +1,13 @@
 #!/bin/bash
 
-podman build -t ros-server . || exit 1
+echo "Building ROS container..."
+podman build -t ros-server -f Containerfile . | tee build.log
 
 xhost + # allow access to X11
 
-tmux new-session "./tmux/launch_sim.sh" \; \
-     set mouse on \; \
-     split-window -v "echo 'Waiting for PX4...'; sleep 5; podman exec ros supervisorctl tail -f px4" \; \
-     split-window -h "echo 'Waiting for PX4...'; sleep 5; ./tmux/launch_control.sh" \;
-
-
-
-
+podman run -it --rm --name ros \
+    -e DISPLAY -e XDG_RUNTIME_DIR \
+    -p 8888:8888 -p 9090:9090 \
+    --volume='/tmp/.X11-unix:/tmp/.X11-unix:rw' \
+    --security-opt label=type:container_runtime_t \
+    ros-server

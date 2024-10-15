@@ -1,0 +1,64 @@
+[1/3] STEP 1/3: FROM ros:humble AS microxrce
+[1/3] STEP 2/3: WORKDIR /opt
+--> Using cache 2cd0ba21b12dae71b28365e21767182e7905ed0972430825636d8c39a6bca308
+--> 2cd0ba21b12d
+[1/3] STEP 3/3: RUN <<EOF (git clone https://github.com/eProsima/Micro-XRCE-DDS-Agent.git...)
+--> Using cache adbfd5549870ecb4426de25eb1851dfe735df276cc5122c5de20e58b984fe718
+--> adbfd5549870
+[2/3] STEP 1/8: FROM adbfd5549870ecb4426de25eb1851dfe735df276cc5122c5de20e58b984fe718 AS px4
+[2/3] STEP 2/8: RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+--> Using cache c5f1469a97478c98a4299e40f4611cb3554ec6187bd0d5ec5d23a7a236afc5c8
+--> c5f1469a9747
+[2/3] STEP 3/8: WORKDIR /opt
+--> Using cache 6bd1e167e1796199f77388c8de716f68a8e08df06991d3e675c4199da06b3e8b
+--> 6bd1e167e179
+[2/3] STEP 4/8: ENV PX4_VERSION 1.14
+--> Using cache de171f369e318f138d14b3a104723870caae0470506fbad3f0b97abd00f9bbc6
+--> de171f369e31
+[2/3] STEP 5/8: RUN git clone https://github.com/PX4/PX4-Autopilot.git PX4 --recursive -b release/${PX4_VERSION}
+--> Using cache 9f17a1cdf23700713769b79d3ee503d41ea955b63de9407eaf10e24a4d3403de
+--> 9f17a1cdf237
+[2/3] STEP 6/8: RUN bash ./PX4/Tools/setup/ubuntu.sh
+--> Using cache 6a3b36f3b1671bb8050b0a17f87b27f29924788b53b480289c8360e60caeb5b9
+--> 6a3b36f3b167
+[2/3] STEP 7/8: RUN pip3 install --user -U pyros-genmsg
+--> Using cache 7d9dd476199c08928a434ea3007ac869b5606e43f6815913af2107640be5484b
+--> 7d9dd476199c
+[2/3] STEP 8/8: RUN cd PX4 && make px4_sitl
+--> Using cache 587b1d2e351ff139fc8ef61bf09e79f384813243d67de179bd535b39794fcbb3
+--> 587b1d2e351f
+[3/3] STEP 1/12: FROM 587b1d2e351ff139fc8ef61bf09e79f384813243d67de179bd535b39794fcbb3 AS ros2-px4
+[3/3] STEP 2/12: RUN <<EOF (export DEBIAN_FRONTEND=noninteractive...)
+--> Using cache a57ce6f3f18fe7af21cca5d5d7f962461b81a20590dbefae498a98743a9ca7c0
+--> a57ce6f3f18f
+[3/3] STEP 3/12: RUN pip3 install --user -U simplejpeg tornado
+--> Using cache bdd9e04747a6d55a1a84fe64f35c7ea479966a1ba209c7059078c7846596e15c
+--> bdd9e04747a6
+[3/3] STEP 4/12: ENV WORKSPACE_DIR /opt/ros2_ws
+--> Using cache c775c58802216cec9868195c7d76ac48aa944a95888a0ae2731244e43b6d296d
+--> c775c5880221
+[3/3] STEP 5/12: WORKDIR $WORKSPACE_DIR/src
+--> Using cache ec4b9c21cfa0d1571be0d770503b4552e4e7b34064f9e0e8ebf7c7892815508b
+--> ec4b9c21cfa0
+[3/3] STEP 6/12: RUN git clone --depth 1 https://github.com/dheera/rosboard.git
+--> Using cache 7fc0e225f48508d63b764e15d786f9f0fa7840e6b5d3c5a9e6810b4ed7683857
+--> 7fc0e225f485
+[3/3] STEP 7/12: RUN git clone --depth 1 https://github.com/AleOrcia/ROS2_PX4_Quadcopter_Controller.git
+--> Using cache 9083eca88693fe2ecb0dbe5ec30aa47f6225219e725a06cc7a1fb1231dc6bd79
+--> 9083eca88693
+[3/3] STEP 8/12: RUN git clone --depth 1 https://github.com/PX4/px4_msgs.git -b release/1.14
+--> Using cache a6c76626c63cbae5a176ed279b9edc2425b37159d60956d46765eefac897e45c
+--> a6c76626c63c
+[3/3] STEP 9/12: RUN <<EOF (. /opt/ros/$ROS_DISTRO/setup.sh...)
+--> Using cache fea3fe82e8a59f85a0b19e147e78ebed7dcd624d2deab027bd235d4d3b8f6943
+--> fea3fe82e8a5
+[3/3] STEP 10/12: RUN <<EOF (export DEBIAN_FRONTEND=noninteractive...)
+--> Using cache 6a4e237d3197e3ed31e154f902c6dd43dc7af9de6a9ca202f4d4ec7e289f0462
+--> 6a4e237d3197
+[3/3] STEP 11/12: COPY docker /opt/
+--> c85df6ecf2fa
+[3/3] STEP 12/12: CMD ["/opt/launch.sh"]
+[3/3] COMMIT ros-server
+--> 1656298b3ae7
+Successfully tagged localhost/ros-server:latest
+1656298b3ae7cf823c02594bd21db55fa82c85aba3a6fee66492a3dd470835ba

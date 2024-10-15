@@ -13,13 +13,12 @@ RUN <<EOF
 EOF
 
 FROM microxrce as px4
-
 RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt
+ENV PX4_VERSION 1.14
 
-ENV PX4_VERSION 1.15
-
+# Install PX4
 RUN git clone https://github.com/PX4/PX4-Autopilot.git PX4 --recursive -b release/${PX4_VERSION}
 RUN bash ./PX4/Tools/setup/ubuntu.sh
 RUN pip3 install --user -U pyros-genmsg
@@ -35,32 +34,30 @@ RUN <<EOF
     rm -rf /var/lib/apt/lists/*
 EOF
 
+# Install ROS packages
 RUN pip3 install --user -U simplejpeg tornado
-
 ENV WORKSPACE_DIR /opt/ros2_ws
 
-# Create workspace
 WORKDIR $WORKSPACE_DIR/src
+RUN git clone --depth 1 https://github.com/dheera/rosboard.git
+RUN git clone --depth 1 https://github.com/AleOrcia/ROS2_PX4_Quadcopter_Controller.git
+RUN git clone --depth 1 https://github.com/PX4/px4_msgs.git -b release/1.14
 
-# Install ROS packages
 RUN <<EOF
     . /opt/ros/$ROS_DISTRO/setup.sh
-    git clone --depth 1 https://github.com/dheera/rosboard.git
-    git clone --depth 1 https://github.com/AleOrcia/ROS2_PX4_Quadcopter_Controller.git
-    git clone --depth 1 https://github.com/PX4/px4_msgs.git -b release/1.14
-
     cd $WORKSPACE_DIR
     rosdep install -i --from-paths src --rosdistro $ROS_DISTRO -y
     colcon build
 EOF
 
+# Install tmux
+RUN <<EOF
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y tmux xterm ros-$ROS_DISTRO-rqt-graph
+    rm -rf /var/lib/apt/lists/*
+EOF
 
-
-RUN echo ". /opt/ros/$ROS_DISTRO/setup.sh\n. $WORKSPACE_DIR/install/setup.sh" >/opt/setup.sh
-
-# Supervisor
-COPY docker/supervisord.conf /etc/supervisord.conf
-RUN mkdir -p /opt/supervisord
-COPY docker/*.sh /opt/supervisord/
-
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# Copy launch scripts
+COPY docker /opt/
+CMD ["/opt/launch.sh"]
