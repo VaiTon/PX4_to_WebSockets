@@ -19,10 +19,10 @@ def generate_launch_description():
 
             # Control Terminal
             Node(package="px4_offboard", executable="control", prefix="xterm -e", name="term_controller"),
-            # Bridge between /fcu and the control terminal
+            # Bridge between /fmu and the control terminal
             Node(package="px4_offboard", executable="velocity_control", name="velocity_controller"),
 
-            # Bridge between /fcu and /px4_visualizer. Translates the messages from PX4 to ROS2
+            # Bridge between /fmu and /px4_visualizer. Translates the messages from PX4 to ROS2
             Node(package="px4_offboard", executable="visualizer"),
 
             # RVIZ2 Visualizer
